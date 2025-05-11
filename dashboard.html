@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Novex - Dashboard</title>
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="icon" type="image/png" href="images/logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <div class="glass-nav">
+    <div class="nav-container">
+      <button class="nav-toggle" id="navToggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="logo-container">
+        <img src="images/logo.png" alt="logo" class="logo" />
+        <h1 onclick="window.location.href='/dashboard'" style="cursor: pointer;">Novex Dashboard</h1>
+      </div>
+      <div class="nav-links">
+        <div class="user-profile" id="userProfile">
+          <img src="" alt="Avatar" class="user-avatar" id="userAvatar" />
+          <span class="user-name" id="userName">Username</span>
+          <div class="dropdown" id="userDropdown">
+            <a href="/dashboard">Dashboard</a>
+            <a href="#" id="logoutBtn">Log Out</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Side Navigation -->
+  <div class="side-nav" id="sideNav" style="display: none;">
+    <div class="nav-items">
+      <a href="#" class="nav-item active" data-section="server-info">
+        <i class="fas fa-server"></i>
+        Server Info
+      </a>
+      <a href="#" class="nav-item" data-section="embed-config">
+        <i class="fas fa-code"></i>
+        Embed Config
+      </a>
+      <a href="#" class="nav-item" data-section="roles-config">
+        <i class="fas fa-user-tag"></i>
+        Roles Config
+      </a>
+      <a href="#" class="nav-item" data-section="database-config">
+        <i class="fas fa-database"></i>
+        Database Config
+      </a>
+    </div>
+  </div>
+
+  <style>
+
+    /* Database Config Styles */
+.database-tables {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.database-table-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    padding: 12px 15px;
+    text-align: left;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.database-table-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+.database-table-btn.active {
+    background: var(--discord-blurple);
+    color: white;
+}
+
+.database-table-container {
+    width: 100%;
+    background: var(--discord-dark);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--box-shadow-light);
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.table-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.table-actions input {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.2);
+    color: white;
+}
+
+.refresh-btn {
+    background: var(--discord-blurple);
+    color: white;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.refresh-btn:hover {
+    background: var(--button-hover);
+    transform: rotate(90deg);
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+th {
+    background: rgba(0, 0, 0, 0.3);
+    color: var(--discord-blurple);
+    font-weight: 600;
+}
+
+tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.edit-btn, .delete-btn {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: 0.3s;
+    border: none;
+}
+
+.edit-btn {
+    background: #4f545c;
+    color: white;
+    margin-right: 5px;
+}
+
+.edit-btn:hover {
+    background: #5d6269;
+}
+
+.delete-btn {
+    background: #ed4245;
+    color: white;
+}
+
+.delete-btn:hover {
+    background: #ff4f52;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 20px;
+}
+
+.page-btn {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.page-btn:hover {
+    background: var(--discord-blurple);
+    border-color: var(--discord-blurple);
+}
+
+.page-btn.active {
+    background: var(--discord-blurple);
+    border-color: var(--discord-blurple);
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: var(--discord-dark);
+    border-radius: 12px;
+    padding: 30px;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    box-shadow: var(--box-shadow-dark);
+}
+
+.close-modal {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: 0.3s;
+}
+
+.close-modal:hover {
+    color: white;
+}
+
+#formFields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.2);
+    color: white;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.cancel-btn, .save-btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+    border: none;
+}
+
+.cancel-btn {
+    background: #4f545c;
+    color: white;
+}
+
+.cancel-btn:hover {
+    background: #5d6269;
+}
+
+.save-btn {
+    background: var(--discord-blurple);
+    color: white;
+}
+
+.save-btn:hover {
+    background: var(--button-hover);
+}
+
+.delete-btn {
+    background: #ed4245;
+    color: white;
+    margin-right: auto;
+}
+
+.delete-btn:hover {
+    background: #ff4f52;
+}
+
+    /* Toast Notification */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 9999;
+    }
+
+    .toast {
+      background: rgba(0, 0, 0, 0.95);
+      color: white;
+      padding: 20px 30px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      transform: translateX(120%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      min-width: 300px;
+      font-size: 1.1rem;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast.success {
+      border-left: 5px solid #43b581;
+    }
+
+    .toast.error {
+      border-left: 5px solid #f04747;
+    }
+
+    .toast i {
+      font-size: 1.4rem;
+    }
+
+    /* Welcome Animation */
+    .welcome-container {
+      text-align: center;
+      padding: 40px;
+      opacity: 0;
+      transform: translateY(-30px);
+      transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      background: linear-gradient(145deg, rgba(88, 101, 242, 0.1), rgba(127, 77, 237, 0.1));
+      border-radius: 20px;
+      margin: 20px 0 40px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .welcome-container.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .welcome-message {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 15px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .welcome-subtitle {
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      line-height: 1.6;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* User Profile Section */
+    .user-profile-section {
+      background: linear-gradient(145deg, var(--discord-dark), #2a2d31);
+      padding: 40px;
+      border-radius: 20px;
+      margin-bottom: 40px;
+      text-align: center;
+      box-shadow: var(--box-shadow-light);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .user-profile-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+    }
+
+    .user-profile-section .user-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin-bottom: 20px;
+      border: 4px solid var(--discord-blurple);
+      box-shadow: 0 0 30px rgba(88, 101, 242, 0.4);
+      transition: transform 0.3s ease;
+    }
+
+    .user-profile-section .user-avatar:hover {
+      transform: scale(1.05);
+    }
+
+    .user-profile-section .user-name {
+      font-size: 1.6rem;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .user-stats {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--discord-blurple);
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    /* Terms and Conditions Styles */
+    .terms-container {
+      background: linear-gradient(145deg, var(--discord-dark), #2a2d31);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 800px;
+      margin: 0 auto;
+      box-shadow: var(--box-shadow-light);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .terms-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+    }
+
+    .terms-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .terms-header .gradient-text {
+      font-size: 2.5rem;
+      font-weight: bold;
+      background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
+    }
+
+    .terms-header p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+
+    .terms-content {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .terms-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .terms-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      transition: transform 0.2s ease;
+    }
+
+    .terms-list li:hover {
+      transform: translateX(5px);
+    }
+
+    .terms-list li i {
+      color: var(--discord-blurple);
+      font-size: 1.2rem;
+      margin-top: 2px;
+    }
+
+    .terms-list li span {
+      color: var(--text-primary);
+      font-size: 1.05rem;
+      line-height: 1.5;
+    }
+
+    .terms-checkbox-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 30px 0;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .terms-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-primary);
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
+
+    .terms-checkbox input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      border: 2px solid var(--discord-blurple);
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .terms-checkbox input[type="checkbox"]:checked {
+      background: var(--discord-blurple);
+    }
+
+    .terms-checkbox input[type="checkbox"]:checked::after {
+      content: '✓';
+      position: absolute;
+      color: white;
+      font-size: 14px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .terms-checkbox input[type="checkbox"]:hover {
+      border-color: var(--button-hover);
+    }
+
+    .terms-actions {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .terms-button {
+      padding: 15px 40px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .accept-button {
+      background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+      color: white;
+      border: none;
+    }
+
+    .accept-button:hover:enabled {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
+    }
+
+    .accept-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .decline-button {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .decline-button:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+    }
+
+    /* Role Config Styles */
+    .role-types {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .role-type-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      padding: 15px 20px;
+      text-align: left;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    .role-type-btn i {
+      font-size: 1.2rem;
+      width: 24px;
+      text-align: center;
+    }
+
+    .role-type-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+      transform: translateX(5px);
+    }
+
+    .role-type-btn.active {
+      background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+      color: white;
+      box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
+    }
+
+    .role-preview-box {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      padding: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      margin-bottom: 30px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .role-preview-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+    }
+
+    .role-info {
+      margin-bottom: 25px;
+    }
+
+    .role-info:last-child {
+      margin-bottom: 0;
+    }
+
+    .role-info h4 {
+      color: var(--discord-blurple);
+      margin-bottom: 12px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .role-info h4 i {
+      font-size: 1.1rem;
+    }
+
+    .role-info p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      line-height: 1.5;
+      padding-left: 34px;
+    }
+
+    .role-editor {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      padding: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .role-editor h3 {
+      margin-bottom: 25px;
+      font-size: 1.4rem;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .role-editor h3 i {
+      color: var(--discord-blurple);
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 15px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--discord-blurple);
+      box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.2);
+    }
+
+    .form-help {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-top: 8px;
+      padding-left: 15px;
+      border-left: 2px solid var(--discord-blurple);
+    }
+
+    .button-group {
+      margin-top: 35px;
+    }
+
+    .save-button {
+      background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .save-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
+    }
+
+    .save-button i {
+      font-size: 1.2rem;
+    }
+
+    .success-message {
+      display: none;
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(67, 181, 129, 0.1);
+      border: 1px solid rgba(67, 181, 129, 0.2);
+      border-radius: 8px;
+      color: #43b581;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    /* Discord Embed Preview Styles */
+    .discord-embed {
+      background: #2f3136;
+      border-radius: 4px;
+      border-left: 4px solid #5865f2;
+      padding: 16px;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .discord-embed-content {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .discord-embed-title {
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.375;
+    }
+
+    .discord-embed-description {
+      color: #dcddde;
+      font-size: 14px;
+      line-height: 1.375;
+      white-space: pre-wrap;
+    }
+
+    .discord-embed-image {
+      margin-top: 8px;
+      max-width: 100%;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .discord-embed-image img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+  </style>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+    <!-- Terms and Conditions -->
+    <div class="fullpage-content" id="termsSection">
+      <div class="terms-container">
+        <div class="terms-header">
+          <h2 class="gradient-text">Terms and Conditions</h2>
+          <p>Please review and accept our terms to continue using the dashboard</p>
+        </div>
+        <div class="terms-content">
+          <ul class="terms-list">
+            <li>
+              <i class="fas fa-shield-alt"></i>
+              <span>No abuse of the bot or its services. Any form of exploitation or misuse will result in immediate termination of access.</span>
+            </li>
+            <li>
+              <i class="fas fa-users"></i>
+              <span>Follow Discord's community guidelines and maintain a respectful environment in your servers.</span>
+            </li>
+            <li>
+              <i class="fas fa-exclamation-triangle"></i>
+              <span>We're not liable for any losses or damages that may occur from using this service.</span>
+            </li>
+            <li>
+              <i class="fas fa-lock"></i>
+              <span>Keep your account credentials secure and never share them with others.</span>
+            </li>
+            <li>
+              <i class="fas fa-cog"></i>
+              <span>We reserve the right to modify or terminate services at any time without prior notice.</span>
+            </li>
+          </ul>
+        </div>
+        <div class="terms-checkbox-container">
+          <label class="terms-checkbox">
+            <input type="checkbox" id="terms" />
+            I have read and agree to the terms and conditions
+          </label>
+        </div>
+        <div class="terms-actions">
+          <button class="terms-button accept-button" id="acceptButton" disabled>Accept & Continue</button>
+          <button class="terms-button decline-button" onclick="window.location.href='/'">Decline</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Server List Section -->
+    <div class="server-list" id="serversSection" style="display: none;">
+      <div class="user-profile-section">
+        <img src="" alt="Avatar" class="user-avatar" id="welcomeUserAvatar" />
+        <div class="welcome-container" id="welcomeContainer">
+          <div class="welcome-message" id="welcomeMessage">Welcome back!</div>
+          <div class="welcome-subtitle">Ready to manage your servers? Select one below to get started with configuring your bot settings.</div>
+        </div>
+        <div class="user-stats">
+          <div class="stat-item">
+            <div class="stat-value" id="serverCount">0</div>
+            <div class="stat-label">Servers</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="adminCount">0</div>
+            <div class="stat-label">Admin Access</div>
+          </div>
+        </div>
+      </div>
+      <h2 class="gradient-text">Your Admin Servers</h2>
+      <div class="server-grid" id="serverList"></div>
+      <div id="loadingState" class="loading" style="display: none;">
+        <div class="loading-circle"></div>
+        <p>Loading server data...</p>
+      </div>
+    </div>
+
+    <!-- Server Info Section -->
+    <div class="config-section" id="serverInfoSection" style="display: none;">
+      <button class="back-button" id="backButton">← Back to Servers</button>
+      <div class="server-header">
+        <img src="" alt="Server Icon" class="server-icon" id="selectedServerIcon" />
+        <div>
+          <h2 id="selectedServerName">Server Name</h2>
+          <p id="selectedServerId">Server ID: </p>
+          <p id="selectedServerPerms">Permissions: </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Embed Config Section -->
+    <div class="config-section" id="embedConfigSection" style="display: none;">
+      <div class="config-container">
+        <div class="config-sidebar">
+          <h3>Embed Types</h3>
+          <div class="embed-types">
+            <button class="embed-type-btn active" data-type="startup">Startup Message</button>
+            <button class="embed-type-btn" data-type="ea">Early Access Message</button>
+            <button class="embed-type-btn" data-type="release">Release Message</button>
+            <button class="embed-type-btn" data-type="reinvites">Reinvites Message</button>
+            <button class="embed-type-btn" data-type="over">Session Over Message</button>
+          </div>
+        </div>
+        <div class="config-content">
+          <div class="embed-preview-container">
+            <h3>Preview</h3>
+            <div class="embed-preview-box" id="embedPreview">
+              <div class="discord-embed">
+                <div class="discord-embed-content">
+                  <div class="discord-embed-title" id="embedPreviewTitle"></div>
+                  <div class="discord-embed-description" id="embedPreviewDescription"></div>
+                  <div class="discord-embed-image" id="embedPreviewImage"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="embed-editor">
+            <h3>Edit Embed</h3>
+            <form id="embedForm" class="embed-form">
+              <div class="form-group">
+                <label for="embedTitle">Title</label>
+                <input type="text" id="embedTitle" placeholder="Embed title">
+              </div>
+              <div class="form-group">
+                <label for="embedDescription">Description*</label>
+                <textarea id="embedDescription" required placeholder="Embed description"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="embedImage">Image URL</label>
+                <input type="url" id="embedImage" placeholder="https://example.com/image.png">
+                <img src="" class="image-preview" id="embedImagePreview">
+              </div>
+              <div class="button-group">
+                <button type="submit" class="save-button">Save Changes</button>
+              </div>
+              <div class="success-message" id="embedSuccessMessage">Changes saved successfully!</div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Roles Config Section -->
+    <div class="config-section" id="rolesConfigSection" style="display: none;">
+      <div class="config-container">
+        <div class="config-sidebar">
+          <h3>Role Types</h3>
+          <div class="role-types">
+            <button class="role-type-btn active" data-type="leo">
+              <i class="fas fa-shield-alt"></i>
+              LEO Role
+            </button>
+            <button class="role-type-btn" data-type="civi">
+              <i class="fas fa-user"></i>
+              Civilian Role
+            </button>
+            <button class="role-type-btn" data-type="staff">
+              <i class="fas fa-user-tie"></i>
+              Staff Role
+            </button>
+            <button class="role-type-btn" data-type="admin">
+              <i class="fas fa-crown"></i>
+              Admin Role
+            </button>
+          </div>
+        </div>
+        <div class="config-content">
+          <div class="role-preview">
+            <h3>Current Settings</h3>
+            <div class="role-preview-box">
+              <div class="role-info">
+                <h4><i class="fas fa-user-tag"></i> Selected Role</h4>
+                <p id="currentRoleName">No role selected</p>
+                <p id="currentRoleId">Role ID: -</p>
+              </div>
+              <div class="role-info">
+                <h4><i class="fas fa-car"></i> Vehicle Cap</h4>
+                <p id="currentVehicleCap">Unlimited</p>
+              </div>
+            </div>
+          </div>
+          <div class="role-editor">
+            <h3><i class="fas fa-cog"></i> Configure Role</h3>
+            <form id="roleForm" class="role-form">
+              <div class="form-group">
+                <label for="roleId">Role ID</label>
+                <input type="text" id="roleId" placeholder="Enter role ID" required>
+                <p class="form-help">Enter the Discord role ID you want to assign</p>
+              </div>
+              <div class="form-group">
+                <label for="vehicleCap">Vehicle Cap</label>
+                <input type="number" id="vehicleCap" min="0" placeholder="Enter vehicle cap">
+                <p class="form-help">Maximum number of vehicles allowed (0 for unlimited)</p>
+              </div>
+              <div class="button-group">
+                <button type="submit" class="save-button">
+                  <i class="fas fa-save"></i>
+                  Save Changes
+                </button>
+              </div>
+              <div class="success-message" id="roleSuccessMessage">
+                <i class="fas fa-check-circle"></i>
+                Changes saved successfully!
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- Replace the coming soon section with this -->
+<div class="config-section" id="databaseConfigSection" style="display: none;">
+  <div class="config-container">
+      <div class="config-sidebar">
+          <h3>Database Tables</h3>
+          <div class="database-tables">
+              <button class="database-table-btn active" data-table="tickets">
+                  <i class="fas fa-ticket-alt"></i>
+                  Tickets
+              </button>
+              <button class="database-table-btn" data-table="vehicles">
+                  <i class="fas fa-car"></i>
+                  Vehicles
+              </button>
+          </div>
+      </div>
+      <div class="config-content">
+          <div class="database-table-container">
+              <div class="table-header">
+                  <h3 id="tableTitle">Tickets</h3>
+                  <div class="table-actions">
+                      <input type="text" id="tableSearch" placeholder="Search...">
+                      <button class="refresh-btn" id="refreshTable">
+                          <i class="fas fa-sync-alt"></i>
+                      </button>
+                  </div>
+              </div>
+              <div class="table-responsive">
+                  <table id="dataTable">
+                      <thead>
+                          <tr id="tableHeaders"></tr>
+                      </thead>
+                      <tbody id="tableBody"></tbody>
+                  </table>
+              </div>
+              <div class="pagination" id="pagination"></div>
+          </div>
+          
+          <!-- Edit Modal -->
+          <div class="modal" id="editModal">
+              <div class="modal-content">
+                  <span class="close-modal">&times;</span>
+                  <h3 id="modalTitle">Edit Record</h3>
+                  <form id="editForm">
+                      <div id="formFields"></div>
+                      <div class="form-actions">
+                          <button type="button" class="cancel-btn" id="cancelEdit">Cancel</button>
+                          <button type="submit" class="save-btn">Save Changes</button>
+                          <button type="button" class="delete-btn" id="deleteRecord">Delete</button>
+                      </div>
+                  </form>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+  <script>
+
+
+    const termsCheckbox = document.getElementById('terms');
+    const acceptButton = document.getElementById('acceptButton');
+    const serverListContainer = document.querySelector('.server-list');
+    const serverListElement = document.getElementById('serverList');
+    const loadingState = document.getElementById('loadingState');
+    const sideNav = document.getElementById('sideNav');
+    const mainContent = document.getElementById('mainContent');
+    const navToggle = document.getElementById('navToggle');
+    const navItems = document.querySelectorAll('.nav-item');
+    const backButton = document.getElementById('backButton');
+
+    const userAvatar = document.getElementById('userAvatar');
+    const userName = document.getElementById('userName');
+    const userProfile = document.getElementById('userProfile');
+    const userDropdown = document.getElementById('userDropdown');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    // Database Config Variables
+let currentTable = 'tickets';
+let currentPage = 1;
+const itemsPerPage = 10;
+let currentData = [];
+let currentRecordId = null;
+
+// DOM Elements
+const databaseTableButtons = document.querySelectorAll('.database-table-btn');
+const tableTitle = document.getElementById('tableTitle');
+const tableHeaders = document.getElementById('tableHeaders');
+const tableBody = document.getElementById('tableBody');
+const tableSearch = document.getElementById('tableSearch');
+const refreshTableBtn = document.getElementById('refreshTable');
+const pagination = document.getElementById('pagination');
+const editModal = document.getElementById('editModal');
+const modalTitle = document.getElementById('modalTitle');
+const formFields = document.getElementById('formFields');
+const editForm = document.getElementById('editForm');
+const cancelEditBtn = document.getElementById('cancelEdit');
+const deleteRecordBtn = document.getElementById('deleteRecord');
+const closeModalBtn = document.querySelector('.close-modal');
+
+    // Sections
+    const sections = {
+      'server-info': document.getElementById('serverInfoSection'),
+      'embed-config': document.getElementById('embedConfigSection'),
+      'roles-config': document.getElementById('rolesConfigSection'),
+      'database-config': document.getElementById('databaseConfigSection')
+    };
+
+    // User Data
+    const userData = JSON.parse(localStorage.getItem('userData')) || {
+      username: "Guest",
+      avatar: "https://cdn.discordapp.com/embed/avatars/0.png"
+    };
+
+    
+
+    // Initialize UI
+    userName.textContent = userData.username;
+    userAvatar.src = userData.avatar;
+
+    // Event Listeners
+    userProfile.addEventListener('click', () => {
+      userDropdown.style.display = userDropdown.style.display === 'flex' ? 'none' : 'flex';
+    });
+
+    window.addEventListener('click', e => {
+      if (!userProfile.contains(e.target)) {
+        userDropdown.style.display = 'none';
+      }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      localStorage.clear();
+      location.reload();
+    });
+
+    termsCheckbox.addEventListener('change', () => {
+      acceptButton.disabled = !termsCheckbox.checked;
+    });
+
+    acceptButton.addEventListener('click', () => {
+      document.querySelector('.fullpage-content').style.display = 'none';
+      serverListContainer.style.display = 'flex';
+      loadServers();
+      showWelcomeAnimation();
+      showToast('Successfully logged in!');
+    });
+
+    backButton.addEventListener('click', () => {
+      // Hide all sections
+      Object.values(sections).forEach(s => s.style.display = 'none');
+      sideNav.style.display = 'none';
+      mainContent.classList.remove('shifted');
+      // Show server list
+      serverListContainer.style.display = 'flex';
+    });
+
+    navToggle.addEventListener('click', () => {
+      sideNav.classList.toggle('active');
+      mainContent.classList.toggle('shifted');
+    });
+
+    navItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const section = item.dataset.section;
+        
+        // Update active state
+        navItems.forEach(nav => nav.classList.remove('active'));
+        item.classList.add('active');
+        
+        // Hide all sections
+        Object.values(sections).forEach(s => s.style.display = 'none');
+        
+        // Show selected section
+        sections[section].style.display = 'block';
+        
+        // Close mobile nav if open
+        if (window.innerWidth <= 768) {
+          sideNav.classList.remove('active');
+          mainContent.classList.remove('shifted');
+        }
+      });
+    });
+
+    // Functions
+    function loadServers() {
+      const userGuilds = JSON.parse(localStorage.getItem('guildsData'));
+      const adminGuilds = userGuilds?.filter(guild => guild.permissions & 0x8) || [];
+
+      serverListElement.innerHTML = ''; // Clear existing content
+
+      // Update stats
+      document.getElementById('serverCount').textContent = userGuilds?.length || 0;
+      document.getElementById('adminCount').textContent = adminGuilds.length;
+
+      if (adminGuilds.length > 0) {
+        adminGuilds.forEach(guild => {
+          const iconUrl = guild.icon
+            ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
+            : 'https://cdn.discordapp.com/embed/avatars/0.png';
+
+          const guildElement = document.createElement('div');
+          guildElement.classList.add('server-box');
+          guildElement.innerHTML = `
+            <img src="${iconUrl}" alt="${guild.name}" class="server-icon" />
+            <h3>${guild.name}</h3>
+            <p class="server-id">ID: ${guild.id}</p>
+          `;
+          guildElement.addEventListener('click', () => selectServer(guild));
+          serverListElement.appendChild(guildElement);
+        });
+      } else {
+        serverListElement.innerHTML = '<p class="no-servers">You are not an admin in any servers.</p>';
+      }
+    }
+
+    // Add embed type button functionality
+    const embedTypeButtons = document.querySelectorAll('.embed-type-btn');
+    const embedForm = document.getElementById('embedForm');
+    const embedTitle = document.getElementById('embedTitle');
+    const embedDescription = document.getElementById('embedDescription');
+    const embedImage = document.getElementById('embedImage');
+    const embedImagePreview = document.getElementById('embedImagePreview');
+    const embedPreview = document.getElementById('embedPreview');
+    let currentEmbedType = 'startup';
+    let currentGuildId = null;
+
+    embedTypeButtons.forEach(button => {
+      button.addEventListener('click', async () => {
+        // Update active state
+        embedTypeButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        
+        // Update current embed type
+        currentEmbedType = button.dataset.type;
+        
+        // Load embed data if we have a guild selected
+        if (currentGuildId) {
+          await loadEmbedData(currentGuildId, currentEmbedType);
+        }
+      });
+    });
+
+    // Add image preview functionality
+    embedImage.addEventListener('input', () => {
+      if (embedImage.value) {
+        embedImagePreview.src = embedImage.value;
+        embedImagePreview.style.display = 'block';
+      } else {
+        embedImagePreview.style.display = 'none';
+      }
+    });
+
+    // Add form submission handler
+    embedForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (!currentGuildId) {
+        showToast('Please select a server first', 'error');
+        return;
+      }
+
+      const formData = {
+        type: currentEmbedType,
+        title: embedTitle.value,
+        description: embedDescription.value,
+        image: embedImage.value
+      };
+
+      try {
+        const response = await fetch(`/api/embed/${currentGuildId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+          showToast('Changes saved successfully!');
+          updateEmbedPreview(formData);
+        } else {
+          throw new Error('Failed to save');
+        }
+      } catch (error) {
+        showToast('Failed to save changes. Please try again.', 'error');
+        console.error(error);
+      }
+    });
+
+    async function loadEmbedData(guildId, type) {
+      try {
+        const response = await fetch(`/api/embed/${guildId}`);
+        const data = await response.json();
+        
+        const embedData = data[type] || {
+          title: '',
+          description: '',
+          image: ''
+        };
+
+        // Update form fields
+        embedTitle.value = embedData.title || '';
+        embedDescription.value = embedData.description || '';
+        embedImage.value = embedData.image || '';
+        
+        // Update image preview
+        if (embedData.image) {
+          embedImagePreview.src = embedData.image;
+          embedImagePreview.style.display = 'block';
+        } else {
+          embedImagePreview.style.display = 'none';
+        }
+
+        // Update embed preview
+        updateEmbedPreview(embedData);
+      } catch (error) {
+        console.error('Error loading embed data:', error);
+        alert('Failed to load embed data. Please try again.');
+      }
+    }
+
+    function updateEmbedPreview(data) {
+      const titleElement = document.getElementById('embedPreviewTitle');
+      const descriptionElement = document.getElementById('embedPreviewDescription');
+      const imageElement = document.getElementById('embedPreviewImage');
+
+      // Update title
+      if (data.title) {
+        titleElement.textContent = data.title;
+        titleElement.style.display = 'block';
+      } else {
+        titleElement.style.display = 'none';
+      }
+
+      // Update description
+      if (data.description) {
+        descriptionElement.textContent = data.description;
+        descriptionElement.style.display = 'block';
+      } else {
+        descriptionElement.textContent = 'No description set';
+        descriptionElement.style.display = 'block';
+      }
+
+      // Update image
+      if (data.image) {
+        imageElement.innerHTML = `<img src="${data.image}" alt="Embed image">`;
+        imageElement.style.display = 'block';
+      } else {
+        imageElement.style.display = 'none';
+      }
+    }
+
+    function selectServer(guild) {
+      // Hide server list
+      serverListContainer.style.display = 'none';
+      
+      // Show side navigation
+      sideNav.style.display = 'block';
+      mainContent.classList.add('shifted');
+      
+      // Update server info
+      document.getElementById('selectedServerIcon').src = guild.icon
+        ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
+        : 'https://cdn.discordapp.com/embed/avatars/0.png';
+      document.getElementById('selectedServerName').textContent = guild.name;
+      document.getElementById('selectedServerId').textContent = `Server ID: ${guild.id}`;
+      document.getElementById('selectedServerPerms').textContent = `Permissions: ${getPermissionString(guild.permissions)}`;
+      
+      // Store current guild ID
+      currentGuildId = guild.id;
+      
+      // Show server info section
+      sections['server-info'].style.display = 'block';
+      
+      // Reset navigation
+      navItems.forEach(nav => nav.classList.remove('active'));
+      document.querySelector('[data-section="server-info"]').classList.add('active');
+
+      // Load initial embed data
+      loadEmbedData(guild.id, currentEmbedType);
+    }
+
+    function getPermissionString(permissions) {
+      const perms = [];
+      if (permissions & 0x8) perms.push('Administrator');
+      if (permissions & 0x20) perms.push('Manage Server');
+      if (permissions & 0x10) perms.push('Manage Roles');
+      return perms.join(', ');
+    }
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768) {
+        sideNav.classList.remove('active');
+        mainContent.classList.remove('shifted');
+      }
+    });
+
+    // Toast Notification Function
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+        ${message}
+      `;
+      
+      document.getElementById('toastContainer').appendChild(toast);
+      
+      // Trigger reflow
+      toast.offsetHeight;
+      
+      // Show toast
+      toast.classList.add('show');
+      
+      // Remove after 3 seconds
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // Welcome Animation
+    function showWelcomeAnimation() {
+      const welcomeContainer = document.getElementById('welcomeContainer');
+      const welcomeMessage = document.getElementById('welcomeMessage');
+      const welcomeUserAvatar = document.getElementById('welcomeUserAvatar');
+      
+      // Update welcome message
+      welcomeMessage.textContent = `Welcome back, ${userData.username}!`;
+      welcomeUserAvatar.src = userData.avatar;
+      
+      // Show animation
+      setTimeout(() => {
+        welcomeContainer.classList.add('show');
+      }, 100);
+    }
+
+    // Role Configuration
+    const roleTypeButtons = document.querySelectorAll('.role-type-btn');
+    const roleForm = document.getElementById('roleForm');
+    const roleIdInput = document.getElementById('roleId');
+    const vehicleCapInput = document.getElementById('vehicleCap');
+    let currentRoleType = 'leo';
+
+    // Function to load role data
+    async function loadRoleData(guildId, type) {
+      try {
+        console.log('Loading role data for guild:', guildId, 'type:', type);
+        const response = await fetch(`/api/roles/${guildId}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('Received role data:', data);
+        // Update form fields based on role type
+        switch(type) {
+          case 'leo':
+            roleIdInput.value = data.leo?.id || '';
+            break;
+          case 'civi':
+            roleIdInput.value = data.civi?.id || '';
+            break;
+          case 'staff':
+            roleIdInput.value = data.staff?.id || '';
+            break;
+          case 'admin':
+            roleIdInput.value = data.admin?.id || '';
+            break;
+        }
+        vehicleCapInput.value = data.vehicleCap || 0;
+        // Update preview
+        updateRolePreview(data, type);
+        showToast('Role settings loaded successfully');
+      } catch (error) {
+        console.error('Error loading role data:', error);
+        showToast('Failed to load role data', 'error');
+      }
+    }
+
+    // Function to update role preview
+    function updateRolePreview(data, type) {
+      let roleId;
+      let roleName;
+      switch(type) {
+        case 'leo':
+          roleId = data.leo?.id;
+          roleName = 'LEO Role';
+          break;
+        case 'civi':
+          roleId = data.civi?.id;
+          roleName = 'Civilian Role';
+          break;
+        case 'staff':
+          roleId = data.staff?.id;
+          roleName = 'Staff Role';
+          break;
+        case 'admin':
+          roleId = data.admin?.id;
+          roleName = 'Admin Role';
+          break;
+      }
+      document.getElementById('currentRoleName').textContent = roleName;
+      document.getElementById('currentRoleId').textContent = `Role ID: ${roleId || '-'}`;
+      document.getElementById('currentVehicleCap').textContent = 
+        data.vehicleCap ? `${data.vehicleCap} vehicles` : 'Unlimited';
+    }
+
+    // Add event listeners for role type buttons
+    roleTypeButtons.forEach(button => {
+      button.addEventListener('click', async () => {
+        // Update active state
+        roleTypeButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        // Update current role type
+        currentRoleType = button.dataset.type;
+        console.log('Selected role type:', currentRoleType);
+        // Load role data if we have a guild selected
+        if (currentGuildId) {
+          await loadRoleData(currentGuildId, currentRoleType);
+        }
+      });
+    });
+
+    // Add event listener for roles config section
+    document.querySelector('[data-section="roles-config"]').addEventListener('click', async () => {
+      if (currentGuildId) {
+        console.log('Loading initial role data for guild:', currentGuildId);
+        await loadRoleData(currentGuildId, currentRoleType);
+      }
+    });
+
+    // Update selectServer function to load role data
+    const originalSelectServer = selectServer;
+    selectServer = async function(guild) {
+      await originalSelectServer(guild);
+      if (currentGuildId) {
+        console.log('Loading role data after server selection');
+        await loadRoleData(currentGuildId, currentRoleType);
+      }
+    };
+
+    // Add form submission handler
+    roleForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentGuildId) {
+        showToast('Please select a server first', 'error');
+        return;
+      }
+      // Create form data based on current role type
+      const formData = {
+        vehicleCap: parseInt(vehicleCapInput.value) || 0
+      };
+      switch(currentRoleType) {
+        case 'leo':
+          formData.leo = { id: roleIdInput.value };
+          break;
+        case 'civi':
+          formData.civi = { id: roleIdInput.value };
+          break;
+        case 'staff':
+          formData.staff = { id: roleIdInput.value };
+          break;
+        case 'admin':
+          formData.admin = { id: roleIdInput.value };
+          break;
+      }
+      try {
+        const response = await fetch(`/api/roles/${currentGuildId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        });
+        if (response.ok) {
+          const data = await response.json();
+          showToast('Role settings saved successfully!');
+          updateRolePreview(data, currentRoleType);
+        } else {
+          throw new Error('Failed to save');
+        }
+      } catch (error) {
+        console.error('Error saving role data:', error);
+        showToast('Failed to save role settings', 'error');
+      }
+    });
+  </script>
+</body>
+</html>
